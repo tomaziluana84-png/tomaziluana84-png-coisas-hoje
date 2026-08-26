@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page Title</title>
+    <link rel="stylesheet" href="main.css" />
+  </head>
+  <body>
+    Claro — dá para fazer um site com aparência de terminal/hacker futurista,
+    animações, logs falsos e uma mensagem central, sem mexer em arquivos ou
+    configurações do PC.
+
+    <!doctype html>
+    <html lang="pt-BR">
+      <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>CAETANO // SYSTEM ACCESS</title>
+
+        <style>
+          * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+          }
+
+          body {
+            min-height: 100vh;
+            background: #020509;
+            color: #00ff9d;
+            font-family: "Courier New", monospace;
+            overflow: hidden;
+          }
+
+          /* Fundo estilo matriz */
+          canvas {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            opacity: 0.18;
+          }
+
+          .scanlines {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            background: repeating-linear-gradient(
+              to bottom,
+              rgba(255, 255, 255, 0.015) 0px,
+              rgba(255, 255, 255, 0.015) 1px,
+              transparent 2px,
+              transparent 4px
+            );
+          }
+
+          .container {
+            position: relative;
+            z-index: 2;
+            width: min(900px, 92%);
+            margin: 7vh auto;
+            padding: 3px;
+            background: linear-gradient(90deg, #00ff9d, #00aaff, #00ff9d);
+            box-shadow:
+              0 0 20px #00ff9d55,
+              0 0 80px #00aaff22;
+            animation: pulse 3s infinite alternate;
+          }
+
+          .window {
+            background: rgba(2, 7, 12, 0.96);
+            padding: 28px;
+            min-height: 600px;
+            position: relative;
+          }
+
+          .topbar {
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #00ff9d44;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            color: #6fffc5;
+          }
+
+          .status {
+            color: #00ff9d;
+          }
+
+          .terminal {
+            color: #8affce;
+            line-height: 1.8;
+            font-size: 14px;
+            min-height: 130px;
+          }
+
+          .prompt {
+            color: #00aaff;
+          }
+
+          .message {
+            margin: 35px 0;
+            padding: 35px 20px;
+            text-align: center;
+            border: 1px solid #00ff9d55;
+            background: radial-gradient(
+              circle at center,
+              #00ff9d0c,
+              transparent 65%
+            );
+            box-shadow: inset 0 0 40px #00ff9d08;
+          }
+
+          .message h1 {
+            font-size: clamp(28px, 6vw, 58px);
+            letter-spacing: 5px;
+            color: #fff;
+            text-shadow:
+              0 0 5px #00ff9d,
+              0 0 20px #00ff9d,
+              0 0 50px #00ff9d;
+            animation: glitch 2.5s infinite;
+          }
+
+          .message p {
+            margin-top: 20px;
+            color: #00ff9d;
+            font-size: 16px;
+          }
+
+          .progress {
+            height: 5px;
+            background: #09251c;
+            margin-top: 30px;
+            overflow: hidden;
+          }
+
+          .progress span {
+            display: block;
+            height: 100%;
+            width: 0%;
+            background: #00ff9d;
+            box-shadow: 0 0 15px #00ff9d;
+            animation: loading 4s forwards;
+          }
+
+          .cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-top: 25px;
+          }
+
+          .card {
+            border: 1px solid #00ff9d33;
+            padding: 15px;
+            background: #00ff9d05;
+          }
+
+          .card small {
+            color: #558f79;
+          }
+
+          .card strong {
+            display: block;
+            margin-top: 8px;
+            color: #00ff9d;
+          }
+
+          .footer {
+            margin-top: 25px;
+            font-size: 11px;
+            color: #426c5d;
+            text-align: center;
+          }
+
+          .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background: #00ff9d;
+            animation: blink 0.7s infinite;
+            vertical-align: middle;
+          }
+
+          @keyframes loading {
+            to {
+              width: 100%;
+            }
+          }
+
+          @keyframes blink {
+            50% {
+              opacity: 0;
+            }
+          }
+
+          @keyframes pulse {
+            from {
+              box-shadow: 0 0 15px #00ff9d33;
+            }
+            to {
+              box-shadow: 0 0 35px #00ff9d66;
+            }
+          }
+
+          @keyframes glitch {
+            0%,
+            92%,
+            100% {
+              transform: translate(0);
+            }
+            94% {
+              transform: translate(-3px, 2px);
+            }
+            96% {
+              transform: translate(3px, -2px);
+            }
+          }
+
+          @media (max-width: 650px) {
+            .cards {
+              grid-template-columns: 1fr;
+            }
+
+            .window {
+              padding: 18px;
+            }
+          }
+        </style>
+      </head>
+
+      <body>
+        <canvas id="matrix"></canvas>
+        <div class="scanlines"></div>
+
+        <div class="container">
+          <div class="window">
+            <div class="topbar">
+              <span>CAETANO_OS v9.4.2</span>
+              <span class="status">● ONLINE</span>
+            </div>
+
+            <div class="terminal" id="terminal"></div>
+
+            <div class="message">
+              <h1>OI, LUANA</h1>
+              <p>EU SOU O CAETANO E PEGUEI SEU PC NA AULA KKKKK</p>
+
+              <div class="progress">
+                <span></span>
+              </div>
+            </div>
+
+            <div class="cards">
+              <div class="card">
+                <small>USER</small>
+                <strong>CAETANO</strong>
+              </div>
+
+              <div class="card">
+                <small>TARGET</small>
+                <strong>LUANA</strong>
+              </div>
+
+              <div class="card">
+                <small>STATUS</small>
+                <strong>PEGADINHA.exe</strong>
+              </div>
+            </div>
+
+            <div class="footer">
+              CONNECTION ENCRYPTED // SESSION 0xCAETANO //
+              <span class="cursor"></span>
+            </div>
+          </div>
+        </div>
+
+        <script>
+          // Terminal animado
+          const terminal = document.getElementById("terminal");
+
+          const lines = [
+            "[BOOT] Inicializando sistema...",
+            "[OK] Módulo visual carregado.",
+            "[OK] Interface futurista carregada.",
+            "[SCAN] Procurando usuário...",
+            "[FOUND] LUANA",
+            "[ACCESS] Modo brincadeira ativado.",
+            "[SYSTEM] Preparando mensagem...",
+          ];
+
+          let line = 0;
+
+          function addLine() {
+            if (line >= lines.length) return;
+
+            const div = document.createElement("div");
+
+            div.innerHTML = `<span class="prompt">root@caetano:~$</span> ${lines[line]}`;
+
+            terminal.appendChild(div);
+            line++;
+
+            setTimeout(addLine, 550);
+          }
+
+          addLine();
+
+          // Fundo Matrix
+          const canvas = document.getElementById("matrix");
+          const ctx = canvas.getContext("2d");
+
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+
+          const chars = "01ABCDEFGHIJKLMNOPQRSTUVWXYZ#$%&@";
+
+          const fontSize = 15;
+          const columns = Math.floor(canvas.width / fontSize);
+
+          const drops = Array(columns).fill(1);
+
+          function matrix() {
+            ctx.fillStyle = "rgba(2,5,9,0.08)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = "#00ff9d";
+            ctx.font = fontSize + "px monospace";
+
+            for (let i = 0; i < drops.length; i++) {
+              const text = chars[Math.floor(Math.random() * chars.length)];
+
+              ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+              if (
+                drops[i] * fontSize > canvas.height &&
+                Math.random() > 0.975
+              ) {
+                drops[i] = 0;
+              }
+
+              drops[i]++;
+            }
+          }
+
+          setInterval(matrix, 40);
+
+          window.addEventListener("resize", () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+          });
+        </script>
+      </body>
+    </html>
+
+    Salve como index.html e abra no navegador. Ele fica com aparência de uma
+    interface de sistema complexa, mas é só uma brincadeira visual — não acessa
+    nem altera o computador.
+  </body>
+</html>
